@@ -1,8 +1,7 @@
 package menus;
 
 import java.util.Scanner;
-import excepciones.ClienteRegistradoEx;
-import excepciones.CuitIncorrectoEx;
+import excepciones.*;
 import dominio.Banco;
 
 public class MenuBanco {
@@ -21,22 +20,27 @@ public class MenuBanco {
 			System.out.println("--MENU DEL BANCO--\n1-Agregar cliente\n2-Buscar cliente\n3-Eliminar cliente\n4-Salir");
 			System.out.print("Ingrese su opcion: ");
 			opcion = Integer.parseInt(scn.nextLine());
-			switch(opcion) {
-			case 1:
-				this.agregarCliente(scn);
-				break;
-			case 2:
-				this.buscarCliente(scn);
-				break;
-			case 3:
-				this.eliminarCliente(scn);
-				break;
-			case 4:
-				System.out.println("Saliendo...");
-				break;
-			default:
-				System.out.println("Opcion incorrecta...");
-				break;
+			try{
+				switch(opcion) {
+					case 1:
+						this.agregarCliente(scn);
+						break;
+					case 2:
+						this.buscarCliente(scn);
+						break;
+					case 3:
+						this.eliminarCliente(scn);
+						break;
+					case 4:
+						System.out.println("Saliendo...");
+						break;
+					default:
+						System.out.println("Opcion incorrecta...");
+						break;
+					}
+			}
+			catch(Exception ex){
+					System.err.println(ex);
 			}
 		}
 	}

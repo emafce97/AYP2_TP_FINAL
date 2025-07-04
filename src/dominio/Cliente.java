@@ -2,11 +2,12 @@ package dominio;
 
 public class Cliente {
 	
-	private long cuit;
+	private String cuit, alias;
 	private TarjetaDebito tarjeta;
-	private String alias;
 	
 	public Cliente(String cuit, String alias, TarjetaDebito tarjeta) {
+		this.cuit = cuit;
+		this.alias = alias;
 		this.tarjeta = tarjeta;
 	}
 	
@@ -26,12 +27,12 @@ public class Cliente {
 		
 	}
 
-	public long getCuit() {
-		return cuit;
+	public String getCuit() {
+		return this.cuit;
 	}
 
 	public String getAlias() {
-		return alias;
+		return this.alias;
 	}
 	
 	public String toString() {

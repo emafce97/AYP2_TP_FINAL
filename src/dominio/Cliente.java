@@ -34,6 +34,22 @@ public class Cliente {
 	public String getAlias() {
 		return this.alias;
 	}
+
+	public void setCuit(String cuit){
+		this.cuit = cuit;
+	}
+
+	public void setAlias(String alias){
+		this.alias = alias;
+	}
+
+	public TarjetaDebito getTarjetaDebito(){
+		return this.tarjeta;
+	}
+
+	public void setTarjetaDebito(TarjetaDebito tb){
+		this.tarjeta = tb;
+	}
 	
 	public String toString() {
 		return String.format("%s,%s", this.cuit, this.alias);

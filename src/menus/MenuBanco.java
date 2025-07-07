@@ -63,7 +63,7 @@ public class MenuBanco {
 		String cuit = scn.nextLine();
 		if (this.cuitCorrecto(cuit)) {
 			try {
-				this.banco.agregarCliente(null);
+				this.banco.agregarCliente(cuit);
 				System.out.println("El cliente ha sido agregado...");
 			} catch (ClienteRegistradoEx ex) {
 				System.out.println(ex);

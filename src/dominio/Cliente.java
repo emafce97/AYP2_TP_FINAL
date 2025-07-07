@@ -5,10 +5,8 @@ public class Cliente {
 	private String cuit, alias;
 	private TarjetaDebito tarjeta;
 	
-	public Cliente(String cuit, String alias, TarjetaDebito tarjeta) {
-		this.cuit = cuit;
-		this.alias = alias;
-		this.tarjeta = tarjeta;
+	public Cliente() {
+
 	}
 	
 	public void retirarEfectivo(double monto) {

@@ -1,27 +1,17 @@
 package dominio;
 
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Map;
-import java.util.Random;
-import java.util.HashMap;
-import java.util.Set;
-import java.util.HashSet;
-import java.util.Arrays;
+import java.util.*;
 
 import excepciones.*;
 
 public class Banco {
 	
-	// Colecciones
 	private List<Cliente> clientesL;
 	private Map<String, Cliente> clientesM;
 	private Set<Short> clavesUsadas;
 	private Set<String> aliasUsados;
 	private List<String> palabras;
-	
-	// Variables
-	Random r;
+	private Random r;
 
 	public Banco() {
 		this.clientesL = new ArrayList<>();
@@ -55,6 +45,9 @@ public class Banco {
 		}
 	}
 	
+	/**
+	 * Muestra todos los clientes cargados
+	 */
 	public void listarClientes() {
 		if(!this.hayClientesRegistrados()) {
 			System.out.println("No hay clientes registrados por el momento...");
@@ -66,10 +59,19 @@ public class Banco {
 		}
 	}
 	
+	/**
+	 * Verifica si existe un cliente
+	 * @param cuit
+	 * @return
+	 */
 	private boolean existeCliente(String cuit) {
 		return this.buscarCliente(cuit) != null;
 	}
 	
+	/**
+	 * Verifica si hay clientes registrados
+	 * @return
+	 */
 	private boolean hayClientesRegistrados() {
 		return this.clientesL.isEmpty();
 	}
@@ -122,8 +124,6 @@ public class Banco {
 		}
 		return alias;
 	}
-
-
 
 	/**
 	 * Genera una clave entre 0000 y 9999

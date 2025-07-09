@@ -21,8 +21,7 @@ public class MenuBanco {
 	public void ejecutar() {
 		int opcion = 0;
 		while (opcion != 5) {
-			System.out.println(
-					"--MENU DEL BANCO--\n1-Agregar cliente\n2-Buscar cliente\n3-Eliminar cliente\n4-Listar clientes\n5-Salir");
+			System.out.println("--MENU DEL BANCO--\n1-Agregar cliente\n2-Buscar cliente\n3-Eliminar cliente\n4-Listar clientes\n5-Salir");
 			System.out.print("Ingrese su opcion: ");
 			opcion = Integer.parseInt(scn.nextLine());
 			try {
@@ -43,7 +42,7 @@ public class MenuBanco {
 						System.out.println("Saliendo...");
 						break;
 					default:
-						System.out.println("Opcion incorrecta...");
+						System.out.println(">> Opcion incorrecta...");
 						break;
 				}
 			} catch (Exception ex) {
@@ -64,7 +63,7 @@ public class MenuBanco {
 		if (this.cuitCorrecto(cuit)) {
 			try {
 				this.banco.agregarCliente(cuit);
-				System.out.println("El cliente ha sido agregado...");
+				System.out.println(">> El cliente ha sido agregado...");
 			} catch (ClienteRegistradoEx ex) {
 				System.out.println(ex);
 			}
@@ -83,7 +82,7 @@ public class MenuBanco {
 		this.cuit_scn = scn.nextLine();
 		Cliente c = this.banco.buscarCliente(cuit_scn);
 		if (c == null) {
-			System.out.println("El cliente no existe...");
+			System.out.println(">> El cliente no existe...");
 		} else {
 			System.out.println(c);
 		}

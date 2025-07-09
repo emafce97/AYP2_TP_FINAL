@@ -23,21 +23,39 @@ public class Banco {
 
 	/**
 	 * Agrega un cliente a la base de datos del Banco
+	 * 
+	 * @param cuit
+	 * @throws ClienteRegistradoEx
+	 */
+	// public void agregarCliente(String cuit) throws ClienteRegistradoEx {
+	// Cliente cliente = this.crearCliente(cuit);
+	// if (this.existeCliente(cliente.getCuit())) {
+	// throw new ClienteRegistradoEx();
+	// } else {
+	// this.clientesL.add(cliente);
+	// this.clientesM.put(cliente.getCuit(), cliente);
+	// }
+	// }
+
+	/**
+	 * Agrega un cliente a la base de datos del Banco
+	 * 
 	 * @param cuit
 	 * @throws ClienteRegistradoEx
 	 */
 	public void agregarCliente(String cuit) throws ClienteRegistradoEx {
-		Cliente cliente = this.crearCliente(cuit);
-		if (this.existeCliente(cliente.getCuit())) {
+		if (this.existeCliente(cuit)) {
 			throw new ClienteRegistradoEx();
 		} else {
+			Cliente cliente = this.crearClienteConAlias(cuit);
 			this.clientesL.add(cliente);
-			this.clientesM.put(cliente.getCuit(), cliente);
+			this.clientesM.put(cuit, cliente);
 		}
 	}
 
 	/**
 	 * Busca un cliente en la base de datos del Banco
+	 * 
 	 * @param cuit
 	 * @return
 	 */
@@ -47,6 +65,7 @@ public class Banco {
 
 	/**
 	 * Elimina un cliente de la base de datos del Banco
+	 * 
 	 * @param cuit
 	 * @throws ClienteNoExisteEx
 	 */
@@ -55,7 +74,7 @@ public class Banco {
 			Cliente cliente = this.buscarCliente(cuit);
 			this.clientesL.remove(cliente);
 			this.clientesM.remove(cuit);
-			System.out.println("El cliente ha sido eliminado...");
+			System.out.println(">> El cliente ha sido eliminado...");
 		} else {
 			throw new ClienteNoExisteEx();
 		}
@@ -66,7 +85,7 @@ public class Banco {
 	 */
 	public void listarClientes() {
 		if (!this.hayClientesRegistrados()) {
-			System.out.println("No hay clientes registrados por el momento...");
+			System.out.println(">> No hay clientes registrados por el momento...");
 		} else {
 			System.out.println(">> Clientes registrados:");
 			for (Cliente cliente : this.clientesL) {
@@ -188,12 +207,9 @@ public class Banco {
 	 * @param cuit
 	 * @return
 	 */
-	private Cliente crearCliente(String cuit) {
-		Cliente cliente = new Cliente();
+	private Cliente crearClienteConAlias(String cuit) {
 		String alias = this.generarAlias(cuit);
-		cliente.setCuit(cuit);
-		cliente.setAlias(alias);
-		return cliente;
+		return new Cliente(cuit, alias);
 	}
 
 }

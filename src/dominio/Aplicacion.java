@@ -1,6 +1,7 @@
 package dominio;
 
 import menus.MenuBanco;
+import menus.MenuCajero;
 import menus.MenuCliente;
 import java.util.Scanner;
 
@@ -9,13 +10,13 @@ public class Aplicacion {
     private Banco banco;
     private Scanner scn;
     private MenuBanco mb;
-    private MenuCliente mc;
+    private MenuCajero mc;
 
     public Aplicacion() {
         this.banco = new Banco();
         this.scn = new Scanner(System.in);
         this.mb = new MenuBanco(scn, this.banco);
-        this.mc = new MenuCliente(scn, this.banco);
+        this.mc = new MenuCajero(scn, this.banco);
     }
 
     public void ejecutar() {

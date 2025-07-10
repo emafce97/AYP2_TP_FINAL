@@ -10,6 +10,9 @@ public class Banco {
 	private Map<String, Cliente> clientesM;
 	private Set<String> aliasUsados;
 	private List<String> palabras;
+
+	public static final double CAMBIO_DOLAR_PESOS = 1200;
+
 	private Random r;
 
 	public Banco() {
@@ -20,22 +23,6 @@ public class Banco {
 		this.r = new Random();
 		this.cagarPalabras();
 	}
-
-	/**
-	 * Agrega un cliente a la base de datos del Banco
-	 * 
-	 * @param cuit
-	 * @throws ClienteRegistradoEx
-	 */
-	// public void agregarCliente(String cuit) throws ClienteRegistradoEx {
-	// Cliente cliente = this.crearCliente(cuit);
-	// if (this.existeCliente(cliente.getCuit())) {
-	// throw new ClienteRegistradoEx();
-	// } else {
-	// this.clientesL.add(cliente);
-	// this.clientesM.put(cliente.getCuit(), cliente);
-	// }
-	// }
 
 	/**
 	 * Agrega un cliente a la base de datos del Banco
@@ -190,15 +177,6 @@ public class Banco {
 				"noviembre",
 				"diciembre", "youtube", "infobae", "facebook" };
 		this.palabras.addAll(Arrays.asList(palabras));
-	}
-
-	/**
-	 * Se listan todas las palabras cargadas para poder generar los alias
-	 */
-	public void listarPalabras() {
-		for (String p : this.palabras) {
-			System.out.println(p);
-		}
 	}
 
 	/**

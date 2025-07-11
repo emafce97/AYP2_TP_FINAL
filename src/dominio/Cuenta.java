@@ -14,6 +14,14 @@ public class Cuenta {
 		this.transRecibidas = new ArrayList<>();
 	}
 
+	public void agregarTransferenciaEnviada(Transferencia transferencia){
+		this.transEnviadas.add(transferencia);
+	}
+
+	public void agregarTransferenciaRecibida(Transferencia transferencia){
+		this.transRecibidas.add(transferencia);
+	}
+
 	public String getTipo() {
 		return this.tipo;
 	}

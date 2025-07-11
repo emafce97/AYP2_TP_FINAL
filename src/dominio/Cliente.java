@@ -8,14 +8,14 @@ import dominio.Banco;
 public class Cliente {
 
 	private String cuit, alias;
-	private Cuenta cc, ca, cau;
+	private Cuenta cc, ca, cad, aux;
 
 	public Cliente(String cuit, String alias) {
 		this.cuit = cuit;
 		this.alias = alias;
 		this.cc = new Cuenta();
 		this.ca = new Cuenta();
-		this.cau = new Cuenta();
+		this.cad = new Cuenta();
 	}
 
 	/**
@@ -24,27 +24,8 @@ public class Cliente {
 	public void mostrarDatos() {
 		String datos = String.format(
 				"** DATOS DE LA CUENTA **\n-CUIT: %s\n-Alias: %s\n-Saldo CC: $ %.2f\n-Saldo CAP: $ %.2f\n-Saldo CAD: USD$ %.2f",
-				this.cuit, this.alias, this.cc.getSaldo(), this.ca.getSaldo(), this.cau.getSaldo());
+				this.cuit, this.alias, this.cc.getSaldo(), this.ca.getSaldo(), this.cad.getSaldo());
 		System.out.println(datos);
-	}
-
-	/**
-	 * Se obtiene una cuenta segun su codigo
-	 * 
-	 * @param codigo
-	 * @return
-	 */
-	private Cuenta getCuentaSegunTipo(String tipoCuenta) {
-		switch (tipoCuenta) {
-			case "01":
-				return this.ca;
-			case "02":
-				return this.cc;
-			case "03":
-				return this.cau;
-			default:
-				return null;
-		}
 	}
 
 	/**
@@ -53,49 +34,40 @@ public class Cliente {
 	 * @param monto
 	 */
 	public void retirarEfectivo(double monto, String tipoCuenta) throws FondosInsuficientesEx, MontoIncorrectoEx {
-		if (monto < 0) {
+		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
-		if (monto > cuenta.getSaldo()) {
+
+		this.aux = this.getCuentaSegunTipo(tipoCuenta);
+		double saldo = aux.getSaldo();
+
+		if (this.fondosInsuficientes(monto, saldo)) {
 			throw new FondosInsuficientesEx();
 		}
-		double nuevoSaldo = cuenta.getSaldo() - monto;
-		cuenta.setSaldo(nuevoSaldo);
+
+		aux.setSaldo(saldo - monto);
 	}
 
 	/**
-	 * Se compra un monto especificado de dolares
+	 * Se compra un monto especificado de dolares, unicamente con las dos cuentas
+	 * que manejan pesos
 	 * 
 	 * @param monto
 	 */
 	public void comprarDolares(String tipoCuenta, double monto) throws FondosInsuficientesEx, MontoIncorrectoEx {
-		if (monto < 0) {
+		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
 
-		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
-		double cantDolaresQueSePuedeComprar = this.simularCambioPesosDolar(cuenta);
+		this.aux = this.getCuentaSegunTipo(tipoCuenta);
+		double saldo = this.aux.getSaldo();
 
-		if (monto > cantDolaresQueSePuedeComprar) {
+		if (this.fondosInsuficientes(monto, this.simularCambioPesosDolar(saldo))) {
 			throw new FondosInsuficientesEx();
 		}
 
-		double nuevoSaldo = this.cau.getSaldo() + monto;
-		this.cau.setSaldo(nuevoSaldo);
-		nuevoSaldo = cuenta.getSaldo() - (monto * Banco.CAMBIO_DOLAR_PESOS);
-		cuenta.setSaldo(nuevoSaldo);
-	}
-
-	/**
-	 * Da un monto aproximado de cuantos dolares se pueden comprar segun el saldo de
-	 * una cuenta
-	 * 
-	 * @param cuenta
-	 * @return
-	 */
-	private double simularCambioPesosDolar(Cuenta cuenta) {
-		return cuenta.getSaldo() / Banco.CAMBIO_DOLAR_PESOS;
+		this.cad.setSaldo(this.cad.getSaldo() + monto);
+		this.aux.setSaldo(saldo - (monto * Banco.CAMBIO_DOLAR_PESOS));
 	}
 
 	/**
@@ -106,15 +78,17 @@ public class Cliente {
 	 * @throws FondosInsuficientesEx
 	 */
 	public void depositar(double monto, String tipoCuenta) throws FondosInsuficientesEx, MontoIncorrectoEx {
-		if (monto < 0) {
+		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
-		if (monto > cuenta.getSaldo()) {
+
+		this.aux = this.getCuentaSegunTipo(tipoCuenta);
+
+		if (this.fondosInsuficientes(monto, this.aux.getSaldo())) {
 			throw new FondosInsuficientesEx();
 		}
-		double nuevoSaldo = cuenta.getSaldo() + monto;
-		cuenta.setSaldo(nuevoSaldo);
+
+		this.aux.setSaldo(this.aux.getSaldo() + monto);
 	}
 
 	/**
@@ -130,13 +104,14 @@ public class Cliente {
 	 */
 	public void hacerTransferencia(String tipoCuenta, Cliente otroCliente, double monto, String concepto)
 			throws MontoIncorrectoEx, FondosInsuficientesEx, ClienteNoExisteEx {
-		if (monto < 0) {
+		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
 
-		Cuenta cuentaOrigen = this.getCuentaSegunTipo(tipoCuenta);
+		this.aux = this.getCuentaSegunTipo(tipoCuenta);
+		double saldo = this.aux.getSaldo();
 
-		if (monto > cuentaOrigen.getSaldo()) {
+		if (this.fondosInsuficientes(monto, saldo)) {
 			throw new FondosInsuficientesEx();
 		}
 
@@ -145,10 +120,8 @@ public class Cliente {
 		}
 
 		Transferencia transferencia = new Transferencia(this.getAlias(), otroCliente.getAlias(), concepto, monto);
-
-		double nuevoSaldo = cuentaOrigen.getSaldo() - monto;
-		cuentaOrigen.setSaldo(nuevoSaldo);
-		cuentaOrigen.getTransEnviadas().add(transferencia);
+		this.aux.setSaldo(saldo - monto);
+		this.aux.agregarTransferenciaEnviada(transferencia);
 		otroCliente.recibirTransferencia(tipoCuenta, transferencia);
 	}
 
@@ -159,10 +132,61 @@ public class Cliente {
 	 * @param transferencia
 	 */
 	public void recibirTransferencia(String tipoCuenta, Transferencia transferencia) {
-		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
-		double nuevoSaldo = cuenta.getSaldo() + transferencia.getMonto();
-		cuenta.setSaldo(nuevoSaldo);
-		cuenta.getTransRecibidas().add(transferencia);
+		this.aux = this.getCuentaSegunTipo(tipoCuenta);
+		this.aux.setSaldo(this.aux.getSaldo() + transferencia.getMonto());
+		this.aux.agregarTransferenciaRecibida(transferencia);
+	}
+
+	/**
+	 * Verifica si un monto es menor a cero
+	 * 
+	 * @param monto
+	 * @return
+	 */
+	private boolean montoIncorrecto(double monto) {
+		return monto < 0;
+	}
+
+	/**
+	 * Verifica si los fondos disponibles en la cuenta son suficientes para cubrir
+	 * lo que se quiere gastar
+	 * 
+	 * @param monto
+	 * @param saldo
+	 * @return
+	 */
+	private boolean fondosInsuficientes(double monto, double saldo) {
+		return monto > saldo;
+	}
+
+	/**
+	 * Se obtiene un tipo de cuenta segun su codigo
+	 * 
+	 * @param codigo
+	 * @return
+	 */
+	private Cuenta getCuentaSegunTipo(String tipoCuenta) {
+		switch (tipoCuenta) {
+			case "01":
+				return this.ca;
+			case "02":
+				return this.cc;
+			case "03":
+				return this.cad;
+			default:
+				return null;
+		}
+	}
+
+	/**
+	 * Da un monto aproximado de cuantos dolares se pueden comprar segun el saldo de
+	 * una cuenta
+	 * 
+	 * @param cuenta
+	 * @return
+	 */
+	private double simularCambioPesosDolar(double saldo) {
+		return saldo / Banco.CAMBIO_DOLAR_PESOS;
 	}
 
 	public String getCuit() {

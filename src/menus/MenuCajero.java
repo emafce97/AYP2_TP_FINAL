@@ -5,11 +5,10 @@ import dominio.Banco;
 import dominio.Cliente;
 import excepciones.ClienteNoExisteEx;
 
-public class MenuCajero{
+public class MenuCajero {
 
     private Scanner scn;
     private Banco banco;
-
 
     public MenuCajero(Scanner scn, Banco banco) {
         this.scn = scn;
@@ -28,10 +27,11 @@ public class MenuCajero{
                         this.simularIngreso(scn);
                         break;
                     case 2:
-                        System.out.println("Saliendo...");
+                        System.out.println("Saliendo del menu...");
                         break;
                     default:
-                        System.out.println("Opcion incorrecta...");
+                        System.out.println("[ERROR] La opcion ingresada es incorrecta...");
+                        break;
                 }
             } catch (Exception ex) {
                 System.err.println(ex.getMessage());
@@ -39,15 +39,14 @@ public class MenuCajero{
         }
     }
 
-    private void simularIngreso(Scanner scn) throws ClienteNoExisteEx{
+    private void simularIngreso(Scanner scn) throws ClienteNoExisteEx {
         System.out.print("Ingrese su CUIT: ");
         String cuit = scn.nextLine();
-        Cliente c = this.banco.buscarCliente(cuit);
-        if(c == null){
+        Cliente cliente = this.banco.buscarCliente(cuit);
+        if (cliente == null) {
             throw new ClienteNoExisteEx();
-        }else{
-            c.mostrarDatos();
-            new MenuCliente(scn, banco, c);
+        } else {
+            new MenuCliente(scn, banco, cliente);
         }
     }
 

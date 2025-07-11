@@ -18,6 +18,10 @@ public class Cliente {
 		this.cad = new Cuenta();
 	}
 
+	public Cliente(String cuit) {
+		this.cuit = cuit;
+	}
+
 	/**
 	 * Muestra los datos y el estado de la cuenta del cliente
 	 */
@@ -77,17 +81,11 @@ public class Cliente {
 	 * @param tipoCuenta
 	 * @throws FondosInsuficientesEx
 	 */
-	public void depositar(double monto, String tipoCuenta) throws FondosInsuficientesEx, MontoIncorrectoEx {
+	public void depositar(double monto, String tipoCuenta) throws MontoIncorrectoEx {
 		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-
 		this.aux = this.getCuentaSegunTipo(tipoCuenta);
-
-		if (this.fondosInsuficientes(monto, this.aux.getSaldo())) {
-			throw new FondosInsuficientesEx();
-		}
-
 		this.aux.setSaldo(this.aux.getSaldo() + monto);
 	}
 
@@ -165,7 +163,7 @@ public class Cliente {
 	 * @param codigo
 	 * @return
 	 */
-	private Cuenta getCuentaSegunTipo(String tipoCuenta) {
+	public Cuenta getCuentaSegunTipo(String tipoCuenta) {
 		switch (tipoCuenta) {
 			case "01":
 				return this.ca;

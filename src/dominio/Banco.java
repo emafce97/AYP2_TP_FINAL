@@ -1,31 +1,28 @@
 package dominio;
 
 import java.util.*;
-
 import excepciones.*;
 
 public class Banco {
 
-	private List<Cliente> clientesL;
-	private Map<String, Cliente> clientesM;
+	private Map<String, Cliente> clientes;
 	private Set<String> aliasUsados;
-	private List<String> palabras;
+	private List<String> palabrasParaAlias;
 
 	public static final double CAMBIO_DOLAR_PESOS = 1200;
 
 	private Random r;
 
 	public Banco() {
-		this.clientesL = new ArrayList<>();
-		this.clientesM = new HashMap<>();
+		this.clientes = new HashMap<>();
 		this.aliasUsados = new HashSet<>();
-		this.palabras = new ArrayList<>();
+		this.palabrasParaAlias = new ArrayList<>();
 		this.r = new Random();
-		this.cagarPalabras();
+		this.cargarClientes();
 	}
 
 	/**
-	 * Agrega un cliente a la base de datos del Banco
+	 * Agrega un cliente a la base de datos del Banco.
 	 * 
 	 * @param cuit
 	 * @throws ClienteRegistradoEx
@@ -34,58 +31,91 @@ public class Banco {
 		if (this.existeCliente(cuit)) {
 			throw new ClienteRegistradoEx();
 		} else {
-			Cliente cliente = this.crearClienteConAlias(cuit);
-			this.clientesL.add(cliente);
-			this.clientesM.put(cuit, cliente);
+			try {
+				Cliente cliente = this.crearClienteConAlias(cuit);
+				this.clientes.put(cuit, cliente);
+			} catch (Exception ex) {
+				System.err.println(ex.getMessage());
+			}
 		}
 	}
 
 	/**
-	 * Busca un cliente en la base de datos del Banco
+	 * Agrega clientes ya creados para no crearlos por consola.
+	 */
+	private void cargarClientes() {
+		this.cagarPalabras();
+		String[] cuits = { "20404881079", "20424250589", "23127700780", "21304881078", "13214181076", "20133086207" };
+		Cliente cliente;
+		for (String cuit : cuits) {
+			try {
+				cliente = this.crearClienteConAlias(cuit);
+				this.clientes.put(cuit, cliente);
+			} catch (Exception ex) {
+				System.err.println(ex.getMessage());
+			}
+		}
+	}
+
+	/**
+	 * Se cargan todas las palabras que se usaran para generar los alias.
+	 */
+	private void cagarPalabras() {
+		String[] palabras = { "casa", "auto", "nieve", "sol", "mar", "rio", "neuquen", "formosa", "cordoba", "osito",
+				"ruso", "yankee",
+				"moto", "rojo", "azul", "verde", "alto", "bajo", "gordo", "flaco", "tarjeta", "directo", "chat",
+				"canal",
+				"datos", "cole", "hora", "telefono", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado",
+				"domingo",
+				"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
+				"noviembre",
+				"diciembre", "youtube", "infobae", "facebook" };
+		this.palabrasParaAlias.addAll(Arrays.asList(palabras));
+	}
+
+	/**
+	 * Busca un cliente en la base de datos del Banco.
 	 * 
 	 * @param cuit
 	 * @return
 	 */
 	public Cliente buscarCliente(String cuit) {
-		return this.clientesM.get(cuit);
+		return this.clientes.get(cuit);
 	}
 
 	/**
-	 * Elimina un cliente de la base de datos del Banco
+	 * Elimina un cliente de la base de datos del Banco.
 	 * 
 	 * @param cuit
 	 * @throws ClienteNoExisteEx
 	 */
 	public void eliminarCliente(String cuit) throws ClienteNoExisteEx {
 		if (this.existeCliente(cuit)) {
-			Cliente cliente = this.buscarCliente(cuit);
-			this.clientesL.remove(cliente);
-			this.clientesM.remove(cuit);
-			System.out.println(">> El cliente ha sido eliminado...");
+			this.clientes.remove(cuit);
+			System.out.println("El cliente ha sido eliminado...");
 		} else {
 			throw new ClienteNoExisteEx();
 		}
 	}
 
 	/**
-	 * Muestra todos los clientes cargados
+	 * Muestra todos los clientes cargados hasta el momento.
 	 */
 	public void listarClientes() {
 		if (!this.hayClientesRegistrados()) {
-			System.out.println(">> No hay clientes registrados por el momento...");
+			System.out.println("[ERROR] No hay clientes registrados por el momento...");
 		} else {
-			System.out.println(">> Clientes registrados:");
-			for (Cliente cliente : this.clientesL) {
-				System.out.println(cliente);
+			System.out.println("Clientes registrados:");
+			for (String cuit : this.clientes.keySet()) {
+				System.out.println("\t" + "- " + this.clientes.get(cuit));
 			}
 		}
 	}
 
 	/**
-	 * Verifica si existe un cliente
+	 * Verifica si existe un cliente.
 	 * 
 	 * @param cuit
-	 * @return True si existe, sino False
 	 */
 	private boolean existeCliente(String cuit) {
 		return this.buscarCliente(cuit) != null;
@@ -94,54 +124,51 @@ public class Banco {
 	/**
 	 * Verifica si hay clientes registrados
 	 * 
-	 * @return
 	 */
-	private boolean hayClientesRegistrados() {
-		return !this.clientesL.isEmpty();
+	public boolean hayClientesRegistrados() {
+		return !this.clientes.isEmpty();
 	}
 
 	/**
-	 * Genera un alias a partir del CUIT
+	 * Genera un alias a partir del CUIT.
 	 * 
 	 * @param cuit
-	 * @return
 	 */
 	private String generarAlias(String cuit) {
 		int[] numeros = { this.r.nextInt(50), this.r.nextInt(50), this.r.nextInt(50) };
-		String alias = "", palabra;
+		StringBuilder alias = new StringBuilder();
+		String palabra;
 		for (int i = 0; i < 3; i++) {
-			palabra = this.palabras.get(numeros[i]);
-			alias += palabra;
+			palabra = this.palabrasParaAlias.get(numeros[i]);
+			alias.append(palabra);
 			if (i != 2) {
-				alias += ".";
+				alias.append(".");
 			}
 		}
-		return alias;
-	}
-
-	/**
-	 * Verifica si el alias generado es correcto: es unico y tiene un maximo de 20
-	 * caracteres
-	 * 
-	 * @param alias
-	 * @return
-	 */
-	private boolean aliasCorrecto(String alias) {
-		return alias.length() <= 20 && !this.aliasRegistrado(alias);
+		return alias.toString();
 	}
 
 	/**
 	 * Se verifica si un alias generado no se encuentra en uso por otro cliente
 	 * 
 	 * @param alias
-	 * @return
 	 */
 	private boolean aliasRegistrado(String alias) {
 		return this.aliasUsados.contains(alias);
 	}
 
 	/**
-	 * Genera un alias correcto
+	 * Verifica si el alias generado es correcto: es unico y tiene un maximo de 20
+	 * caracteres.
+	 * 
+	 * @param alias
+	 */
+	private boolean aliasCorrecto(String alias) {
+		return alias.length() <= 20 && !this.aliasRegistrado(alias);
+	}
+
+	/**
+	 * Genera un alias correcto. Evita que se generen alias duplicados.
 	 * 
 	 * @param cuit
 	 * @return
@@ -151,6 +178,7 @@ public class Banco {
 		while (!this.aliasCorrecto(alias)) {
 			alias = this.generarAlias(cuit);
 		}
+		this.aliasUsados.add(alias);
 		return alias;
 	}
 
@@ -164,30 +192,26 @@ public class Banco {
 	}
 
 	/**
-	 * Se cargan todas las palabras que se usaran para generar los alias
-	 */
-	private void cagarPalabras() {
-		String[] palabras = { "casa", "auto", "nieve", "sol", "mar", "rio", "neuquen", "formosa", "cordoba", "osito",
-				"ruso", "yankee",
-				"moto", "rojo", "azul", "verde", "alto", "bajo", "gordo", "flaco", "tarjeta", "directo", "chat",
-				"canal",
-				"datos", "cole", "hora", "telefono", "lunes", "martes", "miercoles", "jueves", "viernes", "sabado",
-				"domingo",
-				"enero", "febrero", "marzo", "abril", "mayo", "junio", "julio", "agosto", "septiembre", "octubre",
-				"noviembre",
-				"diciembre", "youtube", "infobae", "facebook" };
-		this.palabras.addAll(Arrays.asList(palabras));
-	}
-
-	/**
 	 * Crea un cliente con su CUIT, y a partir de este se le asigna un alias.
 	 * 
 	 * @param cuit
 	 * @return
 	 */
-	private Cliente crearClienteConAlias(String cuit) {
-		String alias = this.generarAlias(cuit);
-		return new Cliente(cuit, alias);
+	private Cliente crearClienteConAlias(String cuit) throws CuitIncorrectoEx {
+		if (!this.cuitCorrecto(cuit)) {
+			throw new CuitIncorrectoEx();
+		}
+		return new Cliente(cuit, this.darAlias(cuit));
+	}
+
+	/**
+	 * Verifica si el formato del CUIT ingresado es correcto
+	 * 
+	 * @param cuit
+	 * @return
+	 */
+	private boolean cuitCorrecto(String cuit) {
+		return cuit.matches("^\\d{11}$");
 	}
 
 }

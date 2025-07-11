@@ -42,11 +42,12 @@ public class MenuBanco {
 						System.out.println("Saliendo...");
 						break;
 					default:
-						System.out.println(">> Opcion incorrecta...");
+						System.out.println("[ERROR] Opcion incorrecta...");
+						System.out.println("Opcion incorrecta...");
 						break;
 				}
 			} catch (Exception ex) {
-				System.err.println(ex);
+				System.err.println(ex.getMessage());
 			}
 		}
 	}
@@ -58,14 +59,14 @@ public class MenuBanco {
 	 * @throws CuitIncorrectoEx
 	 */
 	private void agregarCliente(Scanner scn) throws CuitIncorrectoEx {
-		System.out.print("Ingrese el cuil: ");
+		System.out.print("Ingrese el CUIT: ");
 		String cuit = scn.nextLine();
 		if (this.cuitCorrecto(cuit)) {
 			try {
 				this.banco.agregarCliente(cuit);
 				System.out.println(">> El cliente ha sido agregado...");
 			} catch (ClienteRegistradoEx ex) {
-				System.out.println(ex);
+				System.out.println(ex.getMessage());
 			}
 		} else {
 			throw new CuitIncorrectoEx();
@@ -95,6 +96,9 @@ public class MenuBanco {
 	 * @throws ClienteNoExisteEx
 	 */
 	private void eliminarCliente(Scanner scn) throws ClienteNoExisteEx {
+		if(!this.banco.hayClientesRegistrados()){
+			System.out.println(">> No hay clientes registrados por el momento...");
+		}
 		System.out.print("Ingrese el CUIT del cliente: ");
 		this.cuit_scn = scn.nextLine();
 		this.banco.eliminarCliente(cuit_scn);

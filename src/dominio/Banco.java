@@ -5,12 +5,15 @@ import excepciones.*;
 
 public class Banco {
 
+	// Colecciones
 	private Map<String, Cliente> clientes;
 	private Set<String> aliasUsados;
 	private List<String> palabrasParaAlias;
 
+	// Constantes
 	public static final double CAMBIO_DOLAR_PESOS = 1200;
 
+	// Objectos
 	private Random r;
 
 	public Banco() {
@@ -30,13 +33,11 @@ public class Banco {
 	public void agregarCliente(String cuit) throws ClienteRegistradoEx {
 		if (this.existeCliente(cuit)) {
 			throw new ClienteRegistradoEx();
-		} else {
-			try {
-				Cliente cliente = this.crearClienteConAlias(cuit);
-				this.clientes.put(cuit, cliente);
-			} catch (Exception ex) {
-				System.err.println(ex.getMessage());
-			}
+		}
+		try {
+			this.clientes.put(cuit, this.crearClienteConAlias(cuit));
+		} catch (Exception ex) {
+			System.err.println(ex.getMessage());
 		}
 	}
 
@@ -44,7 +45,7 @@ public class Banco {
 	 * Agrega clientes ya creados para no crearlos por consola.
 	 */
 	private void cargarClientes() {
-		this.cagarPalabras();
+		this.cargarPalabras();
 		String[] cuits = { "20404881079", "20424250589", "23127700780", "21304881078", "13214181076", "20133086207" };
 		Cliente cliente;
 		for (String cuit : cuits) {
@@ -60,7 +61,7 @@ public class Banco {
 	/**
 	 * Se cargan todas las palabras que se usaran para generar los alias.
 	 */
-	private void cagarPalabras() {
+	private void cargarPalabras() {
 		String[] palabras = { "casa", "auto", "nieve", "sol", "mar", "rio", "neuquen", "formosa", "cordoba", "osito",
 				"ruso", "yankee",
 				"moto", "rojo", "azul", "verde", "alto", "bajo", "gordo", "flaco", "tarjeta", "directo", "chat",
@@ -90,26 +91,22 @@ public class Banco {
 	 * @throws ClienteNoExisteEx
 	 */
 	public void eliminarCliente(String cuit) throws ClienteNoExisteEx {
-		if (this.existeCliente(cuit)) {
-			this.clientes.remove(cuit);
-			System.out.println("El cliente ha sido eliminado...");
-		} else {
+		if (!this.existeCliente(cuit)) {
 			throw new ClienteNoExisteEx();
 		}
+		this.clientes.remove(cuit);
+		System.out.println("El cliente ha sido eliminado...");
 	}
 
 	/**
 	 * Muestra todos los clientes cargados hasta el momento.
 	 */
-	public void listarClientes() {
+	public void listarClientes() throws NoHayClientesRegistradosEx {
 		if (!this.hayClientesRegistrados()) {
-			System.out.println("[ERROR] No hay clientes registrados por el momento...");
-		} else {
-			System.out.println("Clientes registrados:");
-			for (String cuit : this.clientes.keySet()) {
-				System.out.println("\t" + "- " + this.clientes.get(cuit));
-			}
+			throw new NoHayClientesRegistradosEx();
 		}
+		System.out.println("Clientes registrados:");
+		this.clientes.forEach((cuit, cliente) -> System.out.println("\t - " + cliente));
 	}
 
 	/**
@@ -118,7 +115,7 @@ public class Banco {
 	 * @param cuit
 	 */
 	private boolean existeCliente(String cuit) {
-		return this.buscarCliente(cuit) != null;
+		return this.clientes.containsKey(cuit);
 	}
 
 	/**
@@ -180,15 +177,6 @@ public class Banco {
 		}
 		this.aliasUsados.add(alias);
 		return alias;
-	}
-
-	/**
-	 * Genera una clave entre 0000 y 9999
-	 * 
-	 * @return clave
-	 */
-	private short generarClave() {
-		return (short) new Random().nextInt(10000);
 	}
 
 	/**

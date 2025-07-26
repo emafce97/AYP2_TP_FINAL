@@ -3,12 +3,11 @@ package dominio;
 import excepciones.ClienteNoExisteEx;
 import excepciones.FondosInsuficientesEx;
 import excepciones.MontoIncorrectoEx;
-import dominio.Banco;
 
 public class Cliente {
 
 	private String cuit, alias;
-	private Cuenta cc, ca, cad, aux;
+	private Cuenta cc, ca, cad;
 
 	public Cliente(String cuit, String alias) {
 		this.cuit = cuit;
@@ -41,15 +40,12 @@ public class Cliente {
 		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-
-		this.aux = this.getCuentaSegunTipo(tipoCuenta);
-		double saldo = aux.getSaldo();
-
+		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
+		double saldo = cuenta.getSaldo();
 		if (this.fondosInsuficientes(monto, saldo)) {
 			throw new FondosInsuficientesEx();
 		}
-
-		aux.setSaldo(saldo - monto);
+		cuenta.setSaldo(saldo - monto);
 	}
 
 	/**
@@ -62,16 +58,13 @@ public class Cliente {
 		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-
-		this.aux = this.getCuentaSegunTipo(tipoCuenta);
-		double saldo = this.aux.getSaldo();
-
+		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
+		double saldo = cuenta.getSaldo();
 		if (this.fondosInsuficientes(monto, this.simularCambioPesosDolar(saldo))) {
 			throw new FondosInsuficientesEx();
 		}
-
 		this.cad.setSaldo(this.cad.getSaldo() + monto);
-		this.aux.setSaldo(saldo - (monto * Banco.CAMBIO_DOLAR_PESOS));
+		cuenta.setSaldo(saldo - (monto * Banco.CAMBIO_DOLAR_PESOS));
 	}
 
 	/**
@@ -85,8 +78,8 @@ public class Cliente {
 		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-		this.aux = this.getCuentaSegunTipo(tipoCuenta);
-		this.aux.setSaldo(this.aux.getSaldo() + monto);
+		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
+		cuenta.setSaldo(cuenta.getSaldo() + monto);
 	}
 
 	/**
@@ -105,21 +98,17 @@ public class Cliente {
 		if (this.montoIncorrecto(monto)) {
 			throw new MontoIncorrectoEx();
 		}
-
-		this.aux = this.getCuentaSegunTipo(tipoCuenta);
-		double saldo = this.aux.getSaldo();
-
+		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
+		double saldo = cuenta.getSaldo();
 		if (this.fondosInsuficientes(monto, saldo)) {
 			throw new FondosInsuficientesEx();
 		}
-
 		if (otroCliente == null) {
 			throw new ClienteNoExisteEx();
 		}
-
 		Transferencia transferencia = new Transferencia(this.getAlias(), otroCliente.getAlias(), concepto, monto);
-		this.aux.setSaldo(saldo - monto);
-		this.aux.agregarTransferenciaEnviada(transferencia);
+		cuenta.setSaldo(saldo - monto);
+		cuenta.agregarTransferenciaEnviada(transferencia);
 		otroCliente.recibirTransferencia(tipoCuenta, transferencia);
 	}
 
@@ -130,9 +119,9 @@ public class Cliente {
 	 * @param transferencia
 	 */
 	public void recibirTransferencia(String tipoCuenta, Transferencia transferencia) {
-		this.aux = this.getCuentaSegunTipo(tipoCuenta);
-		this.aux.setSaldo(this.aux.getSaldo() + transferencia.getMonto());
-		this.aux.agregarTransferenciaRecibida(transferencia);
+		Cuenta cuenta = this.getCuentaSegunTipo(tipoCuenta);
+		cuenta.setSaldo(cuenta.getSaldo() + transferencia.getMonto());
+		cuenta.agregarTransferenciaRecibida(transferencia);
 	}
 
 	/**
@@ -142,7 +131,7 @@ public class Cliente {
 	 * @return
 	 */
 	private boolean montoIncorrecto(double monto) {
-		return monto < 0;
+		return monto <= 0;
 	}
 
 	/**
@@ -172,7 +161,7 @@ public class Cliente {
 			case "03":
 				return this.cad;
 			default:
-				return null;
+				throw new IllegalArgumentException("Tipo de cuenta inválido: " + tipoCuenta);
 		}
 	}
 

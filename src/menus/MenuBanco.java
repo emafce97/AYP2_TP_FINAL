@@ -8,7 +8,6 @@ public class MenuBanco {
 
 	private Scanner scn;
 	private Banco banco;
-	private String cuit_scn;
 
 	public MenuBanco(Scanner scn, Banco banco) {
 		this.scn = scn;
@@ -19,21 +18,29 @@ public class MenuBanco {
 	 * Se ejecuta el menu del Banco, para el alta y baja de clientes
 	 */
 	public void ejecutar() {
+		String menu = """
+				--MENU DEL BANCO--
+				1-Agregar cliente
+				2-Buscar cliente
+				3-Eliminar cliente
+				4-Listar cliente
+				5-Salir
+				""";
 		int opcion = 0;
 		while (opcion != 5) {
-			System.out.println("--MENU DEL BANCO--\n1-Agregar cliente\n2-Buscar cliente\n3-Eliminar cliente\n4-Listar clientes\n5-Salir");
+			System.out.println(menu);
 			System.out.print("Ingrese su opcion: ");
-			opcion = Integer.parseInt(scn.nextLine());
+			opcion = Integer.parseInt(this.scn.nextLine());
 			try {
 				switch (opcion) {
 					case 1:
-						this.agregarCliente(scn);
+						this.agregarCliente();
 						break;
 					case 2:
-						this.buscarCliente(scn);
+						this.buscarCliente();
 						break;
 					case 3:
-						this.eliminarCliente(scn);
+						this.eliminarCliente();
 						break;
 					case 4:
 						this.banco.listarClientes();
@@ -42,8 +49,7 @@ public class MenuBanco {
 						System.out.println("Saliendo...");
 						break;
 					default:
-						System.out.println("[ERROR] Opcion incorrecta...");
-						System.out.println("Opcion incorrecta...");
+						System.out.println("[ATENCION] La opcion ingresada es incorrecta.");
 						break;
 				}
 			} catch (Exception ex) {
@@ -55,16 +61,14 @@ public class MenuBanco {
 	/**
 	 * Agrega un cliente al banco desde un menu exterior
 	 * 
-	 * @param scn
 	 * @throws CuitIncorrectoEx
 	 */
-	private void agregarCliente(Scanner scn) throws CuitIncorrectoEx {
-		System.out.print("Ingrese el CUIT: ");
-		String cuit = scn.nextLine();
+	private void agregarCliente() throws CuitIncorrectoEx {
+		String cuit = this.pedirCUIT();
 		if (this.cuitCorrecto(cuit)) {
 			try {
 				this.banco.agregarCliente(cuit);
-				System.out.println(">> El cliente ha sido agregado...");
+				System.out.println("[INFO] El cliente ha asido agregado.]");
 			} catch (ClienteRegistradoEx ex) {
 				System.out.println(ex.getMessage());
 			}
@@ -76,42 +80,48 @@ public class MenuBanco {
 	/**
 	 * Busca en la base de datos del Banco si el cliente existe.
 	 * 
-	 * @param scn
 	 */
-	private void buscarCliente(Scanner scn) {
-		System.out.print("Ingrese el CUIT del cliente: ");
-		this.cuit_scn = scn.nextLine();
-		Cliente c = this.banco.buscarCliente(cuit_scn);
-		if (c == null) {
-			System.out.println(">> El cliente no existe...");
-		} else {
-			System.out.println(c);
+	private void buscarCliente() throws CuitIncorrectoEx, ClienteNoExisteEx {
+		String cuit = this.pedirCUIT();
+		if (!this.cuitCorrecto(cuit)) {
+			throw new CuitIncorrectoEx();
 		}
+		Cliente cliente = this.banco.buscarCliente(cuit);
+		if (cliente == null) {
+			throw new ClienteNoExisteEx();
+		}
+		System.out.println(cliente);
 	}
 
 	/**
 	 * Elimina un cliente de la base de datos del Banco
 	 * 
-	 * @param scn
 	 * @throws ClienteNoExisteEx
 	 */
-	private void eliminarCliente(Scanner scn) throws ClienteNoExisteEx {
-		if(!this.banco.hayClientesRegistrados()){
-			System.out.println(">> No hay clientes registrados por el momento...");
+	private void eliminarCliente() throws ClienteNoExisteEx, CuitIncorrectoEx {
+		if (!this.banco.hayClientesRegistrados()) {
+			System.out.println("[ATENCION] Todavia no se ha registrado ningun cliente.");
+			return;
 		}
-		System.out.print("Ingrese el CUIT del cliente: ");
-		this.cuit_scn = scn.nextLine();
-		this.banco.eliminarCliente(cuit_scn);
+		String cuit = this.pedirCUIT();
+		if (!this.cuitCorrecto(cuit)) {
+			throw new CuitIncorrectoEx();
+		}
+		this.banco.eliminarCliente(cuit);
 	}
 
 	/**
 	 * Verifica si el formato del CUIT ingresado es correcto
 	 * 
-	 * @param cuit
 	 * @return
 	 */
 	private boolean cuitCorrecto(String cuit) {
 		return cuit.matches("^\\d{11}$");
+	}
+
+	private String pedirCUIT() {
+		System.out.print("Ingrese el CUIT del cliente: ");
+		return this.scn.nextLine();
 	}
 
 }

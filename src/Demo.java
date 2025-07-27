@@ -1,7 +1,4 @@
 import dominio.Aplicacion;
-import dominio.Banco;
-import menus.MenuBanco;
-import java.util.Scanner;
 
 public class Demo {
 

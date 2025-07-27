@@ -19,9 +19,15 @@ public class Aplicacion {
     }
 
     public void ejecutar() {
+        String menu = """
+                --MENU PRINCIPAL--
+                1-Menu del banco
+                2-Menu del cajero
+                3-Salir
+                """;
         int opcion = 0;
         while (opcion != 3) {
-            System.out.println("--MENU PRINCIPAL--\n1-Menu del banco\n2-Menu del cajero\n3-Salir");
+            System.out.println(menu);
             System.out.print("Ingrese su opcion: ");
             opcion = Integer.parseInt(this.scn.nextLine());
             switch (opcion) {

@@ -119,6 +119,11 @@ public class MenuBanco {
 		return cuit.matches("^\\d{11}$");
 	}
 
+	/**
+	 * Solicita el CUIT por consola
+	 * 
+	 * @return
+	 */
 	private String pedirCUIT() {
 		System.out.print("Ingrese el CUIT del cliente: ");
 		return this.scn.nextLine();

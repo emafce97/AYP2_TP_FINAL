@@ -18,10 +18,18 @@ public class MenuCliente {
     }
 
     public void ejecutar() {
+        String menu = """
+                --MENU DEL CLIENTE--
+                1- Depositar
+                2- Transferir
+                3- Retirar efectivo
+                4- Comprar dólares
+                5- Ver saldos
+                6- Salir
+                """;
         int opcion = 0;
         while (opcion != 6) {
-            System.out.println(
-                    "--MENU DEL CLIENTE--\n1-Depositar\n2-Transferir\n3-Retirar efectivo\n4-Comprar dolares\n5-Ver saldos\n6-Salir");
+            System.out.println(menu);
             System.out.print("Ingrese su opcion: ");
             opcion = Integer.parseInt(this.scn.nextLine());
             try {
@@ -56,14 +64,17 @@ public class MenuCliente {
 
     private void depositar() throws MontoIncorrectoEx {
         System.out.print("Ingrese el monto a depositar: $");
-        double monto = Double.parseDouble(this.scn.nextLine());
-        System.out.println(
-                "Seleccione a que cuenta:\n01-Caja de ahorro en pesos\n02-Cuenta corriente\n03-Caja de ahorro en dolares");
-        System.out.print("Ingrese su opcion: ");
-        String tipoCuenta = scn.nextLine();
-        this.cliente.getCuentaSegunTipo(tipoCuenta);
+        double monto = 0;
+        try {
+            monto = Double.parseDouble(this.scn.nextLine());
+        } catch (NumberFormatException ex) {
+            System.out.println(ex.getMessage());
+        }
+        if (monto <= 0) {
+            throw new MontoIncorrectoEx();
+        }
+        String tipoCuenta = this.elegirCuenta(scn);
         this.cliente.depositar(monto, tipoCuenta);
-        System.out.println(">> El dineroo ha sido depositado...");
     }
 
     private void transferir() {
@@ -80,6 +91,18 @@ public class MenuCliente {
 
     private void verSaldos() {
 
+    }
+
+    private String elegirCuenta(Scanner scn) {
+        String menu = """
+                Seleccione el tipo de cuenta:
+                01-Caja de ahorro en pesos
+                02-Cuenta corriente
+                03-Caja de ahorro en dolares
+                """;
+        System.out.println(menu);
+        System.out.print("Ingrese su opcion: ");
+        return scn.nextLine();
     }
 
 }

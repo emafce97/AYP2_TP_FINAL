@@ -21,8 +21,8 @@ public class Aplicacion {
     public void ejecutar() {
         String menu = """
                 --MENU PRINCIPAL--
-                1-Menu del banco
-                2-Menu del cajero
+                1-Ir al menu del banco
+                2-Ir al menu del cajero
                 3-Salir
                 """;
         int opcion = 0;
@@ -41,7 +41,7 @@ public class Aplicacion {
                     System.out.println("Saliendo...");
                     break;
                 default:
-                    System.out.println("Opcion incorrecta...");
+                    System.out.println("[ATENCION] Opcion incorrecta.");
                     break;
             }
         }

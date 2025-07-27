@@ -23,12 +23,28 @@ public class Cliente {
 
 	/**
 	 * Muestra los datos y el estado de la cuenta del cliente
+	 * 
 	 */
 	public void mostrarDatos() {
 		String datos = String.format(
 				"** DATOS DE LA CUENTA **\n-CUIT: %s\n-Alias: %s\n-Saldo CC: $ %.2f\n-Saldo CAP: $ %.2f\n-Saldo CAD: USD$ %.2f",
 				this.cuit, this.alias, this.cc.getSaldo(), this.ca.getSaldo(), this.cad.getSaldo());
 		System.out.println(datos);
+	}
+
+	/**
+	 * Muestra los saldos de cada cuenta
+	 * 
+	 */
+
+	public void mostrarSaldos() {
+		String texto = """
+				Cuenta corriente: $%.2f
+				Caja de ahorro en pesos: $%.2f
+				Caja de ahorro en dolares: USD$%.2f
+				""";
+		String saldos = String.format(texto, this.cc.getSaldo(), this.ca.getSaldo(), this.cad.getSaldo());
+		System.out.println(saldos);
 	}
 
 	/**

@@ -43,11 +43,11 @@ public class MenuCajero {
         System.out.print("Ingrese su CUIT: ");
         String cuit = scn.nextLine();
         Cliente cliente = this.banco.buscarCliente(cuit);
+        System.out.print(cliente);
         if (cliente == null) {
             throw new ClienteNoExisteEx();
-        } else {
-            new MenuCliente(scn, banco, cliente);
         }
+        new MenuCliente(scn, banco, cliente).ejecutar();
     }
 
 }

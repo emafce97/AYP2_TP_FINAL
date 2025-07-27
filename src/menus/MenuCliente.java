@@ -3,6 +3,8 @@ package menus;
 import java.util.Scanner;
 import dominio.Banco;
 import dominio.Cliente;
+import dominio.Cuenta;
+import excepciones.FondosInsuficientesEx;
 import excepciones.MontoIncorrectoEx;
 
 public class MenuCliente {
@@ -67,30 +69,72 @@ public class MenuCliente {
         double monto = 0;
         try {
             monto = Double.parseDouble(this.scn.nextLine());
+            if (monto <= 0) {
+                throw new MontoIncorrectoEx();
+            }
         } catch (NumberFormatException ex) {
-            System.out.println(ex.getMessage());
-        }
-        if (monto <= 0) {
-            throw new MontoIncorrectoEx();
+            System.out.println("[ATENCION] El valor ingresado no es un numero.");
+            return;
         }
         String tipoCuenta = this.elegirCuenta(scn);
         this.cliente.depositar(monto, tipoCuenta);
     }
 
     private void transferir() {
+        System.out.println("El metodo no esta implementado todavia...");
 
     }
 
-    private void retirarEfectivo() {
-
+    private void retirarEfectivo() throws MontoIncorrectoEx {
+        String menu = """
+                Seleccione de que cuenta va retirar el efectivo:
+                01-Caja de ahorro en pesos
+                02-Cuenta corriente
+                """;
+        System.out.println(menu);
+        System.out.print("Ingrese su opcion: ");
+        String tipoCuenta = this.scn.nextLine();
+        System.out.print("Ahora, ingrese el monto a retirar: $");
+        double monto;
+        try {
+            monto = Double.parseDouble(this.scn.nextLine());
+            if (monto <= 0) {
+                throw new MontoIncorrectoEx();
+            }
+        } catch (NumberFormatException ex) {
+            System.out.println("[ATENCION] El valor ingresado no es un numero.");
+            return;
+        }
+        try {
+            this.cliente.retirarEfectivo(monto, tipoCuenta);
+            System.out.println("[INFO] El dinero ha sido retirado con exito.");
+        } catch (FondosInsuficientesEx ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
-    private void comprarDolares() {
-
+    private void comprarDolares() throws MontoIncorrectoEx {
+        System.out.print("Ahora, ingrese el monto a retirar: USD$");
+        double monto;
+        try {
+            monto = Double.parseDouble(this.scn.nextLine());
+            if (monto <= 0) {
+                throw new MontoIncorrectoEx();
+            }
+        } catch (NumberFormatException ex) {
+            System.out.println("[ATENCION] El valor ingresado no es un numero.");
+            return;
+        }
+        try {
+            this.cliente.retirarEfectivo(monto, "03");
+            System.out.println("[INFO] El dinero ha sido retirado con exito.");
+        } catch (FondosInsuficientesEx ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void verSaldos() {
-
+        this.cliente.mostrarDatos();
     }
 
     private String elegirCuenta(Scanner scn) {

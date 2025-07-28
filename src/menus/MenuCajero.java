@@ -16,21 +16,26 @@ public class MenuCajero {
     }
 
     public void ejecutar() {
+        String menu = """
+                --MENU DEL CAJERO--
+                1-Ingresar
+                2-Salir
+                """.strip();
         int opcion = 0;
         while (opcion != 2) {
-            System.out.println("--MENU DEL CAJERO AUTOMATICO--\n1-Ingresar\n2-Salir");
+            System.out.println(menu);
             System.out.print("Ingrese su opcion: ");
             opcion = Integer.parseInt(this.scn.nextLine());
             try {
                 switch (opcion) {
                     case 1:
-                        this.simularIngreso(scn);
+                        this.simularIngreso();
                         break;
                     case 2:
-                        System.out.println("Saliendo del menu...");
+                        System.out.println("Saliendo...");
                         break;
                     default:
-                        System.out.println("[ERROR] La opcion ingresada es incorrecta...");
+                        System.out.println("[ATENCION] La opcion ingresada es incorrecta.");
                         break;
                 }
             } catch (Exception ex) {
@@ -39,15 +44,15 @@ public class MenuCajero {
         }
     }
 
-    private void simularIngreso(Scanner scn) throws ClienteNoExisteEx {
+    private void simularIngreso() throws ClienteNoExisteEx {
         System.out.print("Ingrese su CUIT: ");
-        String cuit = scn.nextLine();
+        String cuit = this.scn.nextLine();
         Cliente cliente = this.banco.buscarClientePorCuit(cuit);
         System.out.print(cliente);
         if (cliente == null) {
             throw new ClienteNoExisteEx();
         }
-        new MenuCliente(scn, banco, cliente).ejecutar();
+        new MenuCliente(this.scn, banco, cliente).ejecutar();
     }
 
 }

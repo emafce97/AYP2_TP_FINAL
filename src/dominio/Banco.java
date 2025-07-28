@@ -33,15 +33,15 @@ public class Banco {
 	 * @throws ClienteRegistradoEx
 	 */
 	public void agregarCliente(String cuit) throws ClienteRegistradoEx {
-		if (this.existeClienteCuit(cuit)) {
-			throw new ClienteRegistradoEx();
-		}
 		try {
+			if (this.existeClienteCuit(cuit)) {
+				throw new ClienteRegistradoEx();
+			}
 			Cliente cliente = this.crearClienteConAlias(cuit);
 			this.clientesCuit.put(cuit, cliente);
 			this.clientesAlias.put(cliente.getAlias(), cliente);
-		} catch (Exception ex) {
-			System.err.println(ex.getMessage());
+		} catch (CuitIncorrectoEx ex) {
+			System.out.println(ex.getMessage());
 		}
 	}
 
@@ -58,7 +58,7 @@ public class Banco {
 				this.clientesCuit.put(cuit, cliente);
 				this.clientesAlias.put(cliente.getAlias(), cliente);
 			} catch (Exception ex) {
-				System.err.println(ex.getMessage());
+				System.out.println(ex.getMessage());
 			}
 		}
 	}
@@ -85,7 +85,10 @@ public class Banco {
 	 * @param cuit
 	 * @return
 	 */
-	public Cliente buscarClientePorCuit(String cuit) {
+	public Cliente buscarClientePorCuit(String cuit) throws CuitIncorrectoEx {
+		if (!this.cuitCorrecto(cuit)) {
+			throw new CuitIncorrectoEx();
+		}
 		return this.clientesCuit.get(cuit);
 	}
 
@@ -95,7 +98,10 @@ public class Banco {
 	 * @param alias
 	 * @return
 	 */
-	public Cliente buscarClientePorAlias(String alias) {
+	public Cliente buscarClientePorAlias(String alias) throws AliasIncorrectoEx {
+		if (!this.aliasCorrecto(alias)) {
+			throw new AliasIncorrectoEx();
+		}
 		return this.clientesAlias.get(alias);
 	}
 
@@ -105,30 +111,20 @@ public class Banco {
 	 * @param cuit
 	 * @throws ClienteNoExisteEx
 	 */
-	public void eliminarClientePorCuit(String cuit) throws NoHayClientesRegistradosEx, ClienteNoExisteEx {
+	public void eliminarCliente(String cuit) throws CuitIncorrectoEx, NoHayClientesRegistradosEx, ClienteNoExisteEx {
+		if (!this.cuitCorrecto(cuit)) {
+			throw new CuitIncorrectoEx();
+		}
 		if (!this.hayClientesRegistrados()) {
 			throw new NoHayClientesRegistradosEx();
 		}
 		if (!this.existeClienteCuit(cuit)) {
 			throw new ClienteNoExisteEx();
 		}
+		Cliente cliente = this.buscarClientePorCuit(cuit);
+		this.aliasUsados.remove(cliente.getAlias());
+		this.clientesAlias.remove(cliente.getAlias());
 		this.clientesCuit.remove(cuit);
-	}
-
-	/**
-	 * Elimina un cliente, segun el aias, de la base de datos del Banco.
-	 * 
-	 * @param alias
-	 * @throws ClienteNoExisteEx
-	 */
-	public void eliminarClientePorAlias(String alias) throws NoHayClientesRegistradosEx, ClienteNoExisteEx {
-		if (!this.hayClientesRegistrados()) {
-			throw new NoHayClientesRegistradosEx();
-		}
-		if (this.existeClienteAlias(alias)) {
-			throw new ClienteNoExisteEx();
-		}
-		this.clientesAlias.remove(alias);
 	}
 
 	/**
@@ -147,7 +143,10 @@ public class Banco {
 	 * 
 	 * @param cuit
 	 */
-	public boolean existeClienteCuit(String cuit) {
+	public boolean existeClienteCuit(String cuit) throws CuitIncorrectoEx {
+		if (!this.cuitCorrecto(cuit)) {
+			throw new CuitIncorrectoEx();
+		}
 		return this.clientesCuit.containsKey(cuit);
 	}
 
@@ -157,7 +156,10 @@ public class Banco {
 	 * @param alias
 	 * @return
 	 */
-	public boolean existeClienteAlias(String alias) {
+	public boolean existeClienteAlias(String alias) throws AliasIncorrectoEx {
+		if (!this.aliasCorrecto(alias)) {
+			throw new AliasIncorrectoEx();
+		}
 		return this.clientesAlias.containsKey(alias);
 	}
 
@@ -167,6 +169,26 @@ public class Banco {
 	 */
 	public boolean hayClientesRegistrados() {
 		return !this.clientesCuit.isEmpty();
+	}
+
+	/**
+	 * Verifica si el formato del CUIT ingresado es correcto
+	 * 
+	 * @param cuit
+	 * @return
+	 */
+	private boolean cuitCorrecto(String cuit) {
+		return cuit.matches("^\\d{11}$");
+	}
+
+	/**
+	 * Verifica si el alias generado es correcto: es unico y tiene un maximo de 20
+	 * caracteres.
+	 * 
+	 * @param alias
+	 */
+	private boolean aliasCorrecto(String alias) {
+		return alias.length() <= 20 && !this.aliasRegistrado(alias);
 	}
 
 	/**
@@ -188,37 +210,27 @@ public class Banco {
 	}
 
 	/**
-	 * Se verifica si un alias generado no se encuentra en uso por otro cliente
-	 * 
-	 * @param alias
-	 */
-	private boolean aliasRegistrado(String alias) {
-		return this.aliasUsados.contains(alias);
-	}
-
-	/**
-	 * Verifica si el alias generado es correcto: es unico y tiene un maximo de 20
-	 * caracteres.
-	 * 
-	 * @param alias
-	 */
-	private boolean aliasCorrecto(String alias) {
-		return alias.length() <= 20 && !this.aliasRegistrado(alias);
-	}
-
-	/**
 	 * Genera un alias correcto. Evita que se generen alias duplicados.
 	 * 
 	 * @param cuit
 	 * @return
 	 */
-	private String darAlias(String cuit) {
+	private String darAliasCorrecto() {
 		String alias = this.generarAlias();
 		while (!this.aliasCorrecto(alias)) {
 			alias = this.generarAlias();
 		}
 		this.aliasUsados.add(alias);
 		return alias;
+	}
+
+	/**
+	 * Se verifica si un alias generado no se encuentra en uso por otro cliente
+	 * 
+	 * @param alias
+	 */
+	private boolean aliasRegistrado(String alias) {
+		return this.aliasUsados.contains(alias);
 	}
 
 	/**
@@ -231,17 +243,7 @@ public class Banco {
 		if (!this.cuitCorrecto(cuit)) {
 			throw new CuitIncorrectoEx();
 		}
-		return new Cliente(cuit, this.darAlias(cuit));
-	}
-
-	/**
-	 * Verifica si el formato del CUIT ingresado es correcto
-	 * 
-	 * @param cuit
-	 * @return
-	 */
-	private boolean cuitCorrecto(String cuit) {
-		return cuit.matches("^\\d{11}$");
+		return new Cliente(cuit, this.darAliasCorrecto());
 	}
 
 }

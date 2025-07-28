@@ -65,9 +65,6 @@ public class MenuBanco {
 	 */
 	private void agregarCliente() throws CuitIncorrectoEx {
 		String cuit = this.pedirCUIT();
-		if (!this.cuitCorrecto(cuit)) {
-			throw new CuitIncorrectoEx();
-		}
 		try {
 			this.banco.agregarCliente(cuit);
 			System.out.println("[INFO] El cliente ha asido agregado.");
@@ -98,21 +95,9 @@ public class MenuBanco {
 	 * @throws ClienteNoExisteEx
 	 */
 	private void eliminarCliente() throws ClienteNoExisteEx, CuitIncorrectoEx {
-		if (!this.banco.hayClientesRegistrados()) {
-			System.out.println("[ATENCION] Todavia no se ha registrado ningun cliente.");
-			return;
-		}
-		String cuit = this.pedirCUIT();
-		if (!this.cuitCorrecto(cuit)) {
-			throw new CuitIncorrectoEx();
-		}
-		if (!this.banco.existeClienteCuit(cuit)) {
-			throw new ClienteNoExisteEx();
-		}
 		try {
-			Cliente cliente = this.banco.buscarClientePorCuit(cuit);
-			this.banco.eliminarClientePorAlias(cliente.getAlias());
-			this.banco.eliminarClientePorCuit(cuit);
+			String cuit = this.pedirCUIT();
+			this.banco.eliminarCliente(cuit);
 			System.out.println("[INFO] El cliente ha sido eliminado.");
 		} catch (NoHayClientesRegistradosEx | ClienteNoExisteEx ex) {
 			System.out.println(ex.getMessage());

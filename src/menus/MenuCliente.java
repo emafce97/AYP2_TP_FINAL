@@ -66,9 +66,14 @@ public class MenuCliente {
     }
 
     private void depositar() throws MontoIncorrectoEx {
-        String tipoCuenta = this.elegirCuenta(true);
-        double monto = this.pedirMonto(tipoCuenta);
-        this.cliente.depositar(monto, tipoCuenta);
+        try {
+            String tipoCuenta = this.elegirCuenta(true);
+            double monto = this.pedirMonto(tipoCuenta);
+            this.cliente.depositar(monto, tipoCuenta);
+            System.out.println("[INFO] El dinero ha sido depositado.");
+        } catch (MontoIncorrectoEx ex) {
+            System.out.println(ex.getMessage());
+        }
     }
 
     private void transferir() throws ClienteNoExisteEx, MontoIncorrectoEx {
@@ -93,23 +98,23 @@ public class MenuCliente {
         }
     }
 
-    private void retirarEfectivo() throws MontoIncorrectoEx {
-        String tipoCuenta = this.elegirCuenta(false);
-        double monto = this.pedirMonto(tipoCuenta);
+    private void retirarEfectivo() {
         try {
+            String tipoCuenta = this.elegirCuenta(false);
+            double monto = this.pedirMonto(tipoCuenta);
             this.cliente.retirarEfectivo(monto, tipoCuenta);
             System.out.println("[INFO] El dinero ha sido retirado con exito.");
-        } catch (FondosInsuficientesEx ex) {
+        } catch (FondosInsuficientesEx | MontoIncorrectoEx ex) {
             System.out.println(ex.getMessage());
         }
     }
 
-    private void comprarDolares() throws MontoIncorrectoEx {
-        double monto = this.pedirMonto("03");
+    private void comprarDolares() {
         try {
+            double monto = this.pedirMonto("03");
             this.cliente.retirarEfectivo(monto, "03");
             System.out.println("[INFO] El dinero ha sido retirado con exito.");
-        } catch (FondosInsuficientesEx ex) {
+        } catch (FondosInsuficientesEx | MontoIncorrectoEx ex) {
             System.out.println(ex.getMessage());
         }
     }

@@ -42,7 +42,7 @@ public class MenuCajero {
     private void simularIngreso(Scanner scn) throws ClienteNoExisteEx {
         System.out.print("Ingrese su CUIT: ");
         String cuit = scn.nextLine();
-        Cliente cliente = this.banco.buscarCliente(cuit);
+        Cliente cliente = this.banco.buscarClientePorCuit(cuit);
         System.out.print(cliente);
         if (cliente == null) {
             throw new ClienteNoExisteEx();

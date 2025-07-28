@@ -29,7 +29,7 @@ public class MenuCliente {
                 4- Comprar dólares
                 5- Ver saldos
                 6- Salir
-                """;
+                """.strip();
         int opcion = 0;
         while (opcion != 6) {
             System.out.println(menu);
@@ -85,9 +85,9 @@ public class MenuCliente {
             }
             System.out.print("Ingrese el motivo o concepto de la transferencia: ");
             String concepto = this.scn.nextLine();
-            System.out.print("")
+            System.out.print("hola");
             Transferencia transferencia = new Transferencia(this.cliente.getAlias(), alias, concepto, monto);
-            this.cliente.hacerTransferencia(alias, cliente, monto, concepto);
+            // this.cliente.hacerTransferencia(alias, cliente, monto, concepto);
         } catch (NumberFormatException ex) {
             System.err.println(ex.getMessage());
         }

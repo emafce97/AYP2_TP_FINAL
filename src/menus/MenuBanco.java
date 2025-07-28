@@ -25,7 +25,7 @@ public class MenuBanco {
 				3-Eliminar cliente
 				4-Listar cliente
 				5-Salir
-				""";
+				""".strip();
 		int opcion = 0;
 		while (opcion != 5) {
 			System.out.println(menu);
@@ -43,7 +43,7 @@ public class MenuBanco {
 						this.eliminarCliente();
 						break;
 					case 4:
-						this.banco.listarClientes();
+						this.listarClientes();
 						break;
 					case 5:
 						System.out.println("Saliendo...");
@@ -65,15 +65,14 @@ public class MenuBanco {
 	 */
 	private void agregarCliente() throws CuitIncorrectoEx {
 		String cuit = this.pedirCUIT();
-		if (this.cuitCorrecto(cuit)) {
-			try {
-				this.banco.agregarCliente(cuit);
-				System.out.println("[INFO] El cliente ha asido agregado.]");
-			} catch (ClienteRegistradoEx ex) {
-				System.out.println(ex.getMessage());
-			}
-		} else {
+		if (!this.cuitCorrecto(cuit)) {
 			throw new CuitIncorrectoEx();
+		}
+		try {
+			this.banco.agregarCliente(cuit);
+			System.out.println("[INFO] El cliente ha asido agregado.");
+		} catch (ClienteRegistradoEx ex) {
+			System.out.println(ex.getMessage());
 		}
 	}
 
@@ -86,7 +85,7 @@ public class MenuBanco {
 		if (!this.cuitCorrecto(cuit)) {
 			throw new CuitIncorrectoEx();
 		}
-		Cliente cliente = this.banco.buscarCliente(cuit);
+		Cliente cliente = this.banco.buscarClientePorCuit(cuit);
 		if (cliente == null) {
 			throw new ClienteNoExisteEx();
 		}
@@ -107,7 +106,29 @@ public class MenuBanco {
 		if (!this.cuitCorrecto(cuit)) {
 			throw new CuitIncorrectoEx();
 		}
-		this.banco.eliminarCliente(cuit);
+		if (!this.banco.existeClienteCuit(cuit)) {
+			throw new ClienteNoExisteEx();
+		}
+		try {
+			Cliente cliente = this.banco.buscarClientePorCuit(cuit);
+			this.banco.eliminarClientePorAlias(cliente.getAlias());
+			this.banco.eliminarClientePorCuit(cuit);
+			System.out.println("[INFO] El cliente ha sido eliminado.");
+		} catch (NoHayClientesRegistradosEx | ClienteNoExisteEx ex) {
+			System.out.println(ex.getMessage());
+		}
+	}
+
+	/**
+	 * Lista todos los clientes registrados
+	 * 
+	 */
+	private void listarClientes() {
+		try {
+			this.banco.listarClientes();
+		} catch (NoHayClientesRegistradosEx ex) {
+			System.out.println(ex.getMessage());
+		}
 	}
 
 	/**

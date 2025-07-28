@@ -24,7 +24,7 @@ public class Aplicacion {
                 1-Ir al menu del banco
                 2-Ir al menu del cajero
                 3-Salir
-                """;
+                """.strip();
         int opcion = 0;
         while (opcion != 3) {
             System.out.println(menu);

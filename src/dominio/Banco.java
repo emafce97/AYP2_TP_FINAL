@@ -105,7 +105,10 @@ public class Banco {
 	 * @param cuit
 	 * @throws ClienteNoExisteEx
 	 */
-	public void eliminarClientePorCuit(String cuit) throws ClienteNoExisteEx {
+	public void eliminarClientePorCuit(String cuit) throws NoHayClientesRegistradosEx, ClienteNoExisteEx {
+		if (!this.hayClientesRegistrados()) {
+			throw new NoHayClientesRegistradosEx();
+		}
 		if (!this.existeClienteCuit(cuit)) {
 			throw new ClienteNoExisteEx();
 		}
@@ -118,7 +121,10 @@ public class Banco {
 	 * @param alias
 	 * @throws ClienteNoExisteEx
 	 */
-	public void eliminarClientePorAlias(String alias) throws ClienteNoExisteEx {
+	public void eliminarClientePorAlias(String alias) throws NoHayClientesRegistradosEx, ClienteNoExisteEx {
+		if (!this.hayClientesRegistrados()) {
+			throw new NoHayClientesRegistradosEx();
+		}
 		if (this.existeClienteAlias(alias)) {
 			throw new ClienteNoExisteEx();
 		}
@@ -141,7 +147,7 @@ public class Banco {
 	 * 
 	 * @param cuit
 	 */
-	private boolean existeClienteCuit(String cuit) {
+	public boolean existeClienteCuit(String cuit) {
 		return this.clientesCuit.containsKey(cuit);
 	}
 

@@ -6,7 +6,8 @@ import excepciones.*;
 public class Banco {
 
 	// Colecciones
-	private Map<String, Cliente> clientes;
+	private Map<String, Cliente> clientesCuit;
+	private Map<String, Cliente> clientesAlias;
 	private Set<String> aliasUsados;
 	private List<String> palabrasParaAlias;
 
@@ -17,7 +18,8 @@ public class Banco {
 	private Random r;
 
 	public Banco() {
-		this.clientes = new HashMap<>();
+		this.clientesCuit = new HashMap<>();
+		this.clientesAlias = new HashMap<>();
 		this.aliasUsados = new HashSet<>();
 		this.palabrasParaAlias = new ArrayList<>();
 		this.r = new Random();
@@ -31,11 +33,13 @@ public class Banco {
 	 * @throws ClienteRegistradoEx
 	 */
 	public void agregarCliente(String cuit) throws ClienteRegistradoEx {
-		if (this.existeCliente(cuit)) {
+		if (this.existeClienteCuit(cuit)) {
 			throw new ClienteRegistradoEx();
 		}
 		try {
-			this.clientes.put(cuit, this.crearClienteConAlias(cuit));
+			Cliente cliente = this.crearClienteConAlias(cuit);
+			this.clientesCuit.put(cuit, cliente);
+			this.clientesAlias.put(cliente.getAlias(), cliente);
 		} catch (Exception ex) {
 			System.err.println(ex.getMessage());
 		}
@@ -51,7 +55,8 @@ public class Banco {
 		for (String cuit : cuits) {
 			try {
 				cliente = this.crearClienteConAlias(cuit);
-				this.clientes.put(cuit, cliente);
+				this.clientesCuit.put(cuit, cliente);
+				this.clientesAlias.put(cliente.getAlias(), cliente);
 			} catch (Exception ex) {
 				System.err.println(ex.getMessage());
 			}
@@ -75,27 +80,49 @@ public class Banco {
 	}
 
 	/**
-	 * Busca un cliente en la base de datos del Banco.
+	 * Busca un cliente por su CUIT en la base de datos del Banco.
 	 * 
 	 * @param cuit
 	 * @return
 	 */
-	public Cliente buscarCliente(String cuit) {
-		return this.clientes.get(cuit);
+	public Cliente buscarClientePorCuit(String cuit) {
+		return this.clientesCuit.get(cuit);
 	}
 
 	/**
-	 * Elimina un cliente de la base de datos del Banco.
+	 * Busca un cliente por su alias en la base de datos del Banco.
+	 * 
+	 * @param alias
+	 * @return
+	 */
+	public Cliente buscarClientePorAlias(String alias) {
+		return this.clientesAlias.get(alias);
+	}
+
+	/**
+	 * Elimina un cliente, segun el CUIT, de la base de datos del Banco.
 	 * 
 	 * @param cuit
 	 * @throws ClienteNoExisteEx
 	 */
-	public void eliminarCliente(String cuit) throws ClienteNoExisteEx {
-		if (!this.existeCliente(cuit)) {
+	public void eliminarClientePorCuit(String cuit) throws ClienteNoExisteEx {
+		if (!this.existeClienteCuit(cuit)) {
 			throw new ClienteNoExisteEx();
 		}
-		this.clientes.remove(cuit);
-		System.out.println("El cliente ha sido eliminado...");
+		this.clientesCuit.remove(cuit);
+	}
+
+	/**
+	 * Elimina un cliente, segun el aias, de la base de datos del Banco.
+	 * 
+	 * @param alias
+	 * @throws ClienteNoExisteEx
+	 */
+	public void eliminarClientePorAlias(String alias) throws ClienteNoExisteEx {
+		if (this.existeClienteAlias(alias)) {
+			throw new ClienteNoExisteEx();
+		}
+		this.clientesAlias.remove(alias);
 	}
 
 	/**
@@ -106,16 +133,26 @@ public class Banco {
 			throw new NoHayClientesRegistradosEx();
 		}
 		System.out.println("Clientes registrados:");
-		this.clientes.forEach((cuit, cliente) -> System.out.println("\t - " + cliente));
+		this.clientesCuit.forEach((cuit, cliente) -> System.out.println("\t - " + cliente));
 	}
 
 	/**
-	 * Verifica si existe un cliente.
+	 * Verifica si existe un cliente segun el CUIT.
 	 * 
 	 * @param cuit
 	 */
-	private boolean existeCliente(String cuit) {
-		return this.clientes.containsKey(cuit);
+	private boolean existeClienteCuit(String cuit) {
+		return this.clientesCuit.containsKey(cuit);
+	}
+
+	/**
+	 * Verifica si existe un cliente segun el alias.
+	 * 
+	 * @param alias
+	 * @return
+	 */
+	public boolean existeClienteAlias(String alias) {
+		return this.clientesAlias.containsKey(alias);
 	}
 
 	/**
@@ -123,15 +160,14 @@ public class Banco {
 	 * 
 	 */
 	public boolean hayClientesRegistrados() {
-		return !this.clientes.isEmpty();
+		return !this.clientesCuit.isEmpty();
 	}
 
 	/**
-	 * Genera un alias a partir del CUIT.
+	 * Genera un alias aleatorio.
 	 * 
-	 * @param cuit
 	 */
-	private String generarAlias(String cuit) {
+	private String generarAlias() {
 		int[] numeros = { this.r.nextInt(50), this.r.nextInt(50), this.r.nextInt(50) };
 		StringBuilder alias = new StringBuilder();
 		String palabra;
@@ -171,9 +207,9 @@ public class Banco {
 	 * @return
 	 */
 	private String darAlias(String cuit) {
-		String alias = this.generarAlias(cuit);
+		String alias = this.generarAlias();
 		while (!this.aliasCorrecto(alias)) {
-			alias = this.generarAlias(cuit);
+			alias = this.generarAlias();
 		}
 		this.aliasUsados.add(alias);
 		return alias;
